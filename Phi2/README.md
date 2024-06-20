@@ -2,19 +2,19 @@
 
 <!-- Provide a quick summary of what the model is/does. -->
 
-It's a fine tuned version of Phi-2 model by Microsoft on Amod/mental_health_counseling_conversations.
+It's a fine-tuned version of Phi-2 model by Microsoft on [Amod/mental_health_counseling_conversations](https://huggingface.co/datasets/Amod/mental_health_counseling_conversations).
 
 
 ## Uses
 
 <!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
-The above model, with applicable changes to the generation_config file passed to model.generate() fucntion can lead to generation of better resulst which could then be used for Health Counseling Chatbot dev.
+The above model, with applicable changes to the generation_config file, passed to model.generate() function can lead to the generation of better results which could then be used for Health Counseling Chatbot dev.
 
 
 
 ## Bias, Risks, and Limitations
 
-The model was developed as a proof-of-concept type hobby project and is not intended to be used without careful considerations of its implications.
+The model was developed as a proof-of-concept type hobby project and is not intended to be used without careful consideration of its implications.
 
 [More Information Needed]
 
@@ -22,6 +22,55 @@ The model was developed as a proof-of-concept type hobby project and is not inte
 ## How to Get Started with the Model
 
 Use the code below to get started with the model.
+
+### Load in the model using the BitsandBytes library
+
+```python
+pip install bitsandbytes
+```
+
+#### Load model from Hugging Face Hub with model name and bitsandbytes configuration
+
+```python
+
+def load_model_tokenizer(model_name: str, bnb_config: BitsAndBytesConfig) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+    """
+    Load the model and tokenizer from the HuggingFace model hub using quantization.
+
+    Args:
+        model_name (str): The name of the model.
+        bnb_config (BitsAndBytesConfig): The quantization configuration of BitsAndBytes.
+
+    Returns:
+        Tuple[AutoModelForCausalLM, AutoTokenizer]: The model and tokenizer.
+    """
+
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        quantization_config = bnb_config,
+        # device_map = "auto",
+        torch_dtype="auto",
+        trust_remote_code=True
+    )
+
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token = True, trust_remote_code=True)
+
+    tokenizer.pad_token = tokenizer.eos_token
+
+    return model, tokenizer
+
+
+bnb_config = BitsAndBytesConfig(
+        load_in_4bit = load_in_4bit,
+        bnb_4bit_use_double_quant = bnb_4bit_use_double_quant,
+        bnb_4bit_quant_type = bnb_4bit_quant_type,
+        bnb_4bit_compute_dtype = bnb_4bit_compute_dtype,
+    )
+
+model, tokenizer = load_model_tokenizer(model_name, bnb_config)
+
+```
 
 ```python
 
